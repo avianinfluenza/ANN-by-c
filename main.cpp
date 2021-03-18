@@ -21,11 +21,30 @@ float bais[M_layer][M_perceptron_x][M_perceptron_y];
 float input[M_input_n][M_input_demension_x][M_input_demension_y];
 //vector< vector<float> > input;
 float label[M_input_n];
+float output[M_layer][M_perceptron_x][M_perceptron_y];
+
 
 float sigmoid(double x){
 	return 1/(1+pow(E, -1*x));
 }
 
+float deff_sigmoid(float input){
+	return sigmoid(input)*(1-sigmoid(input));
+}
+
+float cost_function(void){
+	float cost = 0;
+	for(int i= 0; i < input_n; i++){
+		cost += (1/2)*(output[i]-label[i])*(output[i]-label[i]);
+	}
+}
+
+void back_propagation(int epoch){
+	while(epoch--){
+		printf("epoch : %d,,,\n", epoch);
+		
+	}
+}
 
 int main(){
 	int layer, perceptron_x, perceptron_y, input_demension_x, input_demension_y, input_n;
