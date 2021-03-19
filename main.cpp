@@ -12,7 +12,7 @@ const int M_perceptron_y = 10;
 const int M_input_demension_x = 10;
 const int M_input_demension_y = 10;
 const int M_input_n = 100;
-int layer, perceptron_x, perceptron_y, input_demension_x, input_demension_y, input_n, layerxy[M_layer][2]; //[0]이 x축, [1]이 y축 
+int layer, perceptron_x, perceptron_y, input_demension_x, input_demension_y, input_n, layerxy[M_layer]; //[0]이 x축, [1]이 y축 
 
 
 float weight[M_layer][M_perceptron_x][M_input_demension_x];
@@ -24,6 +24,28 @@ float input[M_input_n][M_input_demension_x];
 float label[M_input_n];
 float output[M_input_n][M_layer][M_perceptron_x];
 
+void foward_pass(void){
+	for(k = 1; k <= input_n; k++){
+		for(int i = 1; i <= layerxy[1]; i++){
+			float temp = 0;
+			for(int j = 1; j <= input_demension; j++){
+				temp += weight[1][i][j]*input[k][j];
+			}
+			output[k][1][i] = temp;
+		}
+		
+		for(int o = 2; o <= layer; o++){
+			for(int i = 1; i <= layerxy[o]; i++){
+				float temp = 0;
+				for(int j = 1; j <= input_demension; j++){
+					temp += weight[o][i][j]*input[k][j];
+				}
+				output[k][o][i] = temp;
+			}
+		}
+	}
+	
+}
 
 float sigmoid(double x){
 	return 1/(1+pow(E, -1*x));
