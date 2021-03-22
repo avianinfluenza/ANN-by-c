@@ -25,16 +25,15 @@ float label[M_input_n];
 float output[M_input_n][M_layer][M_perceptron_x];
 
 void foward_pass(void){
-	for(k = 1; k <= input_n; k++){
+	for(int k = 1; k <= input_n; k++){		//input layer 
 		for(int i = 1; i <= layerxy[1]; i++){
 			float temp = 0;
-			for(int j = 1; j <= input_demension; j++){
+			for(int j = 1; j <= input_demension_x; j++){
 				temp += weight[1][i][j]*input[k][j];
 			}
 			output[k][1][i] = temp;
 		}
-		
-		for(int o = 2; o <= layer; o++){
+		for(int o = 2; o <= layer; o++){	//hidden layer
 			for(int i = 1; i <= layerxy[o]; i++){
 				float temp = 0;
 				for(int j = 1; j <= input_demension; j++){
@@ -43,8 +42,12 @@ void foward_pass(void){
 				output[k][o][i] = temp;
 			}
 		}
+		float temp = 0;
+		for(int i = 1; i <= layerxy[layer]; i++){
+			temp += output[k][layer][i] * weight[layer+1][1][i];
+		}
+		output[layer+1][1][1] = temp;
 	}
-	
 }
 
 float sigmoid(double x){
@@ -63,11 +66,8 @@ float cost_function(void){
 	return cost;
 }
 
-void back_propagation(int epoch){
-	while(epoch--){
-		printf("epoch : %d,,,\n", epoch);
-		
-	}
+void back_propagation(void){
+	
 }
 
 int main(){
@@ -118,7 +118,6 @@ int main(){
 	}
 	printf("label을 입력해주세요.\n");
 	for(int k = 1; k <= input_n; k++){
-		scanf("%d", &input[k]);
+		scanf("%d", &label[k]);
 	}
-	
 }
