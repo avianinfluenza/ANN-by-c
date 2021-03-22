@@ -19,10 +19,11 @@ float weight[M_layer][M_perceptron_x][M_input_demension_x];
 //vector< vector< vector< vector< vector<float> > > > > weight;
 float bais[M_layer][M_perceptron_x];
 //vector< vector< vector<float> > > bais;
-float input[M_input_n][M_input_demension_x];
+int input[M_input_n][M_input_demension_x];
 //vector< vector<float> > input;
-float label[M_input_n];
+int label[M_input_n];
 float output[M_input_n][M_layer][M_perceptron_x];
+float delta[M_layer][M_perceptron_x][M_input_demension_x];
 
 void foward_pass(void){
 	for(int k = 1; k <= input_n; k++){		//input layer 
@@ -36,7 +37,7 @@ void foward_pass(void){
 		for(int o = 2; o <= layer; o++){	//hidden layer
 			for(int i = 1; i <= layerxy[o]; i++){
 				float temp = 0;
-				for(int j = 1; j <= input_demension; j++){
+				for(int j = 1; j <= layerxy[o-1]; j++){
 					temp += weight[o][i][j]*input[k][j];
 				}
 				output[k][o][i] = temp;
@@ -46,7 +47,7 @@ void foward_pass(void){
 		for(int i = 1; i <= layerxy[layer]; i++){
 			temp += output[k][layer][i] * weight[layer+1][1][i];
 		}
-		output[layer+1][1][1] = temp;
+		output[k][layer+1][1] = temp;
 	}
 }
 
@@ -67,7 +68,12 @@ float cost_function(void){
 }
 
 void back_propagation(void){
-	
+	for(int k = 1; k <= input_n; k++){
+		for(int i = 1; i <= layerxy[layer]; i++){
+			delta[layer+1][1][i] = (output[k][layer+1][1] - label[k])*deff_sigmoid(output[k][layer+1][1]);
+			weight[layer+1][1][i] -= delta[layer+1][1][i]*output[k][layer][i];
+		}
+	}	
 }
 
 int main(){
@@ -113,11 +119,29 @@ int main(){
 	printf("input 데이터를 입력해주세요\n");
 	for(int k = 1; k <= input_n; k++){
 		for(int i = 1; i <= input_demension_x; i++){
-			scanf("%d", &input[k][input_demension_x]);
+			scanf("%d", &input[k][i]);
 		}
 	}
+	
+	for(int k = 1; k <= input_n; k++){
+		for(int i = 1; i <= input_demension_x; i++){
+			printf("%d ", input[k][i]);
+		}
+		printf("\n");
+	}
+	
 	printf("label을 입력해주세요.\n");
 	for(int k = 1; k <= input_n; k++){
 		scanf("%d", &label[k]);
+	}
+	for(int k = 1; k <= input_n; k++){
+		printf("%d", label[k]);
+	}
+	
+	
+	for(int i = 0; i < 3; i++){
+		foward_pass();
+		printf("cost : %lf\n", cost_function());
+		back_propagation();
 	}
 }
