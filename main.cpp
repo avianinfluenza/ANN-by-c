@@ -32,7 +32,7 @@ void s(void){
 	for(int i = 0; i <= M_layer; i++){
 		for(int j = 0; j <= M_input_demension_x; j++){
 			for(int k = 0; k <= M_perceptron_x; k++){
-				weight[i][j][k] = 0.00001*(rand()%10000);
+				weight[i][j][k] = 1.0;//0.00001*(rand()%10000);
 			}
 		}
 		printf("배열을 초기화 중입니다...\n");
@@ -51,15 +51,15 @@ void foward_pass(void){
 			for(int j = 1; j <= input_demension_x; j++){
 				temp += weight[1][i][j]*input[k][j];
 			}
-			output[k][1][i] = temp;
+			output[k][1][i] = sigmoid(temp);
 		}
 		for(int o = 2; o <= layer; o++){	//hidden layer
 			for(int i = 1; i <= layerxy[o]; i++){
 				float temp = 0;
 				for(int j = 1; j <= layerxy[o-1]; j++){ 
-					temp += weight[o][i][j]*input[k][j];
+					temp += weight[o][i][j]*output[k][o-1][j];
 				}
-				output[k][o][i] = temp;
+				output[k][o][i] = sigmoid(temp);
 			}
 		}
 		float temp = 0;
@@ -81,7 +81,7 @@ float deff_sigmoid(float input){
 float cost_function(void){
 	float cost = 0;
 	for(int i= 0; i < input_n; i++){
-		cost += (1/2)*(output[i][layer][1]-label[i])*(output[i][layer][1]-label[i]);
+		cost += (1/2)*(output[i][layer+1][1]-label[i])*(output[i][layer+1][1]-label[i]);
 	}
 	return cost;
 }
@@ -92,13 +92,15 @@ void back_propagation(void){
 			delta[layer+1][1][i] = (output[k][layer+1][1] - label[k])*deff_sigmoid(output[k][layer+1][1]);
 			weight[layer+1][1][i] -= delta[layer+1][1][i]*output[k][layer][i];
 		}
+		/*
 		for(int i = layer; i >= 2; i--){
 			for(int j = 1; j <= layerxy[layer]; j++){
 				for(int o = 1; o <= layerxy[layer-1]; o++){
-					delta[i][j][o] = ()
+					delta[i][j][o] = 
 				}
 			}
 		}
+		*/
 	}	
 }
 
@@ -106,7 +108,7 @@ int main(){
 	s();
 	printf("layer 갯수를 입력해주세요.\n");
 	scanf("%d", &layer);
-	for(int i = 1; i <= layer+1; i++){
+	for(int i = 0; i <= layer+1; i++){
 		printf("%d번째 layer의 x축 크기를 입력해주세요.\n", i);
 		scanf("%d", &layerxy[i]);
 	}
@@ -174,16 +176,10 @@ int main(){
 				}
 				printf("\n");
 			}
-			for(int k = 1; k <= layer+1; k++){
-				printf("layer : %d\n", k);
-				for(int o = 1; o <= layerxy[k]; o++){
-					printf("perceptron : %d\n", o);
-					for(int j = 1; j <= layerxy[k-1]; j++){
-						printf("weight %d : %lf ", j,weight[k][o][j]);
-					}
-					printf("\n");
-				}
-				printf("\n");
+			
+			printf("layer : %d\n", layer);
+			for(int i = 1; i <= layerxy[layer]; i++){
+				printf("%lf\n", weight[layer+1][1][i]);
 			}
 		}
 	}
