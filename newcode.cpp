@@ -28,9 +28,9 @@ static struct hidden_layer hi_layer[1];
 static struct output_layer ou_layer;
 
 int main(){
-	printf("layer °¹¼ö : ");
+	printf("layer : ");
 	scanf("%d", &layer);
-	printf("input °¹¼ö : ");
+	printf("input : ");
 	scanf("%d", &input_n);
 	for(int i = 0; i < input_n; i++){
 		printf("intput[%d] : ", i);
