@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h> // rand()함수 포함 라이브러리
+#include <time.h> // time()함수 포함 라이브러리
+
 
 #define E 2.718281
 
@@ -19,9 +22,10 @@ double deff_sigmoid(double input){
 }
 
 struct perceptron{
-	double weight[10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	double weight[10];
 	double output[10];//input_n의 갯수 
 	double delta[10];
+	double tesub[10][10];
 };
 
 struct hidden_layer{
@@ -46,7 +50,7 @@ void foward_pass(void){
 			}
 			hi_layer[0].perceptron[i].output[k] = sigmoid(temp);
 		}
-		for(int p = 1; p < layer; p++){		//inside input layer
+		for(int p = 1; p < layer; p++){		//inside hidden layer
 			for(int i = 1; i < hi_layer[p].length; i++){
 				double temp = 0;
 				for(int j = 0 ; j < hi_layer[p-1].length; j++){
@@ -67,14 +71,31 @@ void back_propagation(void){
 	for(int k = 0; k < input_n; k++){
 		//output layer
 		ou_layer.perceptron.delta[k] = -1*(label[k]-ou_layer.perceptron.output[k])*deff_sigmoid(ou_layer.perceptron.output[k]);
-		for(int i = 0; i < hi_layer[layer-1].length; i++){
-			ou_layer.perceptron.weight[i] -= learning_rate*hi_layer[layer-1].perceptron[i].output[k]*ou_layer.perceptron.delta[k];
+		for(int j = 0; j < hi_layer[layer-1].length; j++){
+			ou_layer.perceptron.tesub[j][k] = learning_rate*hi_layer[layer-1].perceptron[j].output[k]*ou_layer.perceptron.delta[k];
 		}
 		//hidden layer
-		for(int p = 1; p < layer; p++){		//inside input layer
-			for(int i = 1; i < hi_layer[p].length; i++){
-				for(int j = 0 ;j < hi_layer[p-1].length; j++){
-					
+		//highest hidden layer
+		if(layer == 1){
+			for(int i = 0; i < hi_layer[layer-1].length; i++){
+				hi_layer[layer-1].perceptron[i].delta[k] = ou_layer.perceptron.delta[k]*ou_layer.perceptron.weight[i]*deff_sigmoid(hi_layer[layer-1].perceptron[i].output[k]);
+				for(int j = 0 ; j < 2; j++){
+					hi_layer[layer-1].perceptron[i].tesub[j][k] = learning_rate*input[k][j]*hi_layer[layer-1].perceptron[i].delta[k];
+				}
+			}
+		}
+	}
+	for(int k = 0; k < input_n; k++){
+		//output layer
+		for(int j = 0; j < hi_layer[layer-1].length; j++){
+			ou_layer.perceptron.weight[j] -= ou_layer.perceptron.tesub[j][k];
+		}
+		//hidden layer
+		//highest hidden layer
+		if(layer == 1){
+			for(int i = 0; i < hi_layer[layer-1].length; i++){
+				for(int j = 0 ; j < 2; j++){
+					hi_layer[layer-1].perceptron[i].weight[j] -= hi_layer[layer-1].perceptron[i].tesub[j][k];
 				}
 			}
 		}
@@ -83,7 +104,22 @@ void back_propagation(void){
 
 int main(){
 	printf("layer : ");
-	scanf("%d", &layer);
+	scanf("%d", &layer);	
+	srand((unsigned)time(NULL));
+	//output layer
+	for(int j = 0; j < hi_layer[layer-1].length; j++){
+		ou_layer.perceptron.weight[j] = ((rand()*rand())%1000000)*0.000001;
+	}
+	//hidden layer
+	//highest hidden layer
+	if(layer == 1){
+		for(int i = 0; i < hi_layer[layer-1].length; i++){
+			for(int j = 0 ; j < 2; j++){
+				hi_layer[layer-1].perceptron[i].weight[j] = ((rand()*rand())%1000000)*0.000001;
+			}
+		}
+	}
+	
 	printf("input : ");
 	scanf("%d", &input_n);
 	printf("learning rate : ");
@@ -100,12 +136,25 @@ int main(){
 		printf("intput[%d] : %d %d\n", i, input[i][0], input[i][1]);
 		printf("label[%d] : %d\n", i, label[i]);	
 	}
-	foward_pass();
-	for(int i = 0;i < hi_layer[0].length; i++){
-		for(int j = 0; j < input_n; j++){
-			printf("output[%d][%d] : %lf\n", i, j, hi_layer[0].perceptron[i].output[j]);
+	int temp;
+	printf("학습횟수 :  ");
+	scanf("%d", &temp);
+	while(temp--){
+		foward_pass();
+		for(int i = 0;i < hi_layer[0].length; i++){
+			for(int j = 0; j < 2; j++){
+				//printf("output[%d][%d] : %lf\n", i, j, hi_layer[0].perceptron[i].output[j]);
+				printf("weight[%d][%d] : %lf\n", i, j, hi_layer[0].perceptron[i].weight[j]);
+			}
 		}
+		for(int j = 0; j < 2; j++){
+			printf("weight[3][%d] : %lf\n",  j, ou_layer.perceptron.weight[j]);
+		}
+		for(int j = 0; j < input_n; j++){
+			printf("final[%d] : %lf\n", j, ou_layer.perceptron.output[j]);
+		}
+		printf("\n");
+		back_propagation();
 	}
-	
 }
 
