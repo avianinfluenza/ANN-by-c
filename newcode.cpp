@@ -2,7 +2,8 @@
 #include <math.h>
 #include <stdlib.h> // rand()함수 포함 라이브러리
 #include <time.h> // time()함수 포함 라이브러리
-
+#include <string.h>
+#define _CRT_SECURE_NO_WARNINGS
 
 #define E 2.718281
 
@@ -103,6 +104,27 @@ void back_propagation(void){
 }
 
 int main(){
+	char str_tmp[1024];
+    FILE *pFile = NULL;
+
+    pFile = fopen("C:/Users/student/Downloads/iris(150).csv", "r" );
+    if( pFile != NULL )
+    {   
+    printf("yes");
+        while( !feof( pFile ) ){
+            fgets( str_tmp, 1024, pFile );          
+            printf( "%s", str_tmp );
+			//printf("%c", str_tmp[1]);  
+			char *ptr = strtok(str_tmp, ",");      // " " 공백 문자를 기준으로 문자열을 자름, 포인터 반환
+			while (ptr != NULL)          // 자른 문자열이 나오지 않을 때까지 반복
+			{
+			    printf("%s\n", ptr);         // 자른 문자열 출력
+			    ptr = strtok(NULL, ",");      // 다음 문자열을 잘라서 포인터를 반환
+			} 
+        }       
+    }
+    fclose( pFile );
+	/*
 	printf("layer : ");
 	scanf("%d", &layer);	
 	srand((unsigned)time(NULL));
@@ -156,5 +178,6 @@ int main(){
 		printf("\n");
 		back_propagation();
 	}
+	*/
 }
 
