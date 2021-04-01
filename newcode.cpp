@@ -107,7 +107,7 @@ int main(){
 	char str_tmp[1024];
     FILE *pFile = NULL;
 
-    pFile = fopen("C:/Users/student/Downloads/iris(150).csv", "r" );
+    pFile = fopen("D:/iris(150).csv", "r" );
     if( pFile != NULL )
     {   
     printf("yes");
