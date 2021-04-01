@@ -19,14 +19,14 @@ double sigmoid(double x){
 }
 
 double deff_sigmoid(double input){
-	return sigmoid(input)*(1-sigmoid(input));
+	return (input)*(1-input);
 }
 
 struct perceptron{
-	double weight[10];
-	float output[10];//input_n의 갯수 
-	double delta[10];
-	double tesub[10][10];
+	double weight[200];
+	double output[200];//input_n의 갯수 
+	double delta[200];
+	double tesub[200][200];
 };
 
 struct hidden_layer{
@@ -73,7 +73,7 @@ void back_propagation(void){
 		//output layer
 		//printf("label[%d]-ou_layer.perceptron.output[%d] : %d %lf\n", k,k,label[k],ou_layer.perceptron.output[k]);
 		
-		printf("%d %lf\n", k, ou_layer.perceptron.output[k]);
+		//printf("%d %lf\n", k, ou_layer.perceptron.output[k]);
 		
 		ou_layer.perceptron.delta[k] = -1*(label[k]-ou_layer.perceptron.output[k])*deff_sigmoid(ou_layer.perceptron.output[k]);
 		for(int j = 0; j < hi_layer[layer-1].length; j++){
@@ -111,7 +111,7 @@ int main(){
 	char str_tmp[1024];
     FILE *pFile = NULL;
 	int index = 0;
-    pFile = fopen("C:/Users/Administrator/Desktop/ANN-by-c-main/ANN-by-c-main/iris(150).csv", "r" );
+    pFile = fopen("C:/Users/sungh/Desktop/ANN-by-c-main/iris(150).csv", "r" );
     if( pFile != NULL )
     {   
     printf("csv file detected!\n");
@@ -151,6 +151,12 @@ int main(){
 			index++; 
         }       
     }
+    /*
+    for(int i = 0 ; i < 100; i++){
+    	printf("input[%d][0] : %lf ", i,input[i][0]);
+    	printf("input[%d][1] : %lf\n", i,input[i][1]);
+	}
+    */
     fclose( pFile );
 	printf("layer : ");
 	scanf("%d", &layer);	
@@ -193,21 +199,20 @@ int main(){
 	while(temp--){
 		foward_pass();
 		
-		
+		if((temp+1)%10 == 0){
 			for(int i = 0;i < hi_layer[0].length; i++){
 				for(int j = 0; j < 2; j++){
-					printf("output[%d][%d] : %lf\n", i, j, hi_layer[0].perceptron[i].output[j]);
 					printf("weight[%d][%d] : %lf\n", i, j, hi_layer[0].perceptron[i].weight[j]);
 				}
 			}
 			for(int j = 0; j < 2; j++){
-				printf("weight[3][%d] : %lf\n",  j, ou_layer.perceptron.weight[j]);
+				printf("weight[1][%d] : %lf\n",  j, ou_layer.perceptron.weight[j]);
 			}
 			for(int j = 0; j < input_n; j++){
 				printf("final[%d] : %lf\n", j, ou_layer.perceptron.output[j]);
 			}
 			printf("\n");
-		
+		}
 		
 		back_propagation();
 	}
