@@ -7,9 +7,9 @@
 
 #define E 2.718281
 
-static int input[100][2], label[100];
+static int  label[200];
 static int layer, input_n;
-static double learning_rate;
+static double learning_rate, input[200][4];
 
 double sigmoid(double x);
 double deff_sigmoid(double input);
@@ -106,22 +106,43 @@ void back_propagation(void){
 int main(){
 	char str_tmp[1024];
     FILE *pFile = NULL;
-
-    pFile = fopen("D:/iris(150).csv", "r" );
+	int index = 0;
+    pFile = fopen("C:/Users/Administrator/Desktop/ANN-by-c-main/ANN-by-c-main/iris(150).csv", "r" );
     if( pFile != NULL )
     {   
     printf("yes\n");
+    fgets( str_tmp, 1024, pFile );
         while( !feof( pFile ) ){
             fgets( str_tmp, 1024, pFile );          
             printf( "%s", str_tmp );
 			//printf("%c", str_tmp[1]);  
 			char *ptr = strtok(str_tmp, ",");      // " " 공백 문자를 기준으로 문자열을 자름, 포인터 반환
+			int cnt = 0;
+			double num = atof(ptr);
+			ptr = strtok(NULL, ",");      // 다음 문자열을 잘라서 포인터를 반환
 			while (ptr != NULL)          // 자른 문자열이 나오지 않을 때까지 반복
 			{
-			    double num = atof(ptr);
-			    printf("%lf\n", num);
+			    if(cnt == 4){
+			    	if(strcmp(ptr, "setosa\n") == 0){
+			    		label[index] = 0;
+					}
+					else if(strcmp(ptr, "versicolor\n") == 0){
+						label[index] = 1;
+					}
+					else{
+						label[index] = 2;
+					}
+					printf("%d\n",label[index]);
+				}
+				else{
+					double num = atof(ptr);
+				    input[index][cnt] = num;
+				    printf("%lf\n", input[index][cnt]);
+				}
 			    ptr = strtok(NULL, ",");      // 다음 문자열을 잘라서 포인터를 반환
-			} 
+			    cnt++;
+			}
+			index++; 
         }       
     }
     fclose( pFile );
