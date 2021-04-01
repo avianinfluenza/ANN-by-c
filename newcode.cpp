@@ -24,7 +24,7 @@ double deff_sigmoid(double input){
 
 struct perceptron{
 	double weight[10];
-	double output[10];//input_n의 갯수 
+	float output[10];//input_n의 갯수 
 	double delta[10];
 	double tesub[10][10];
 };
@@ -71,6 +71,10 @@ void foward_pass(void){
 void back_propagation(void){
 	for(int k = 0; k < input_n; k++){
 		//output layer
+		//printf("label[%d]-ou_layer.perceptron.output[%d] : %d %lf\n", k,k,label[k],ou_layer.perceptron.output[k]);
+		
+		printf("%d %lf\n", k, ou_layer.perceptron.output[k]);
+		
 		ou_layer.perceptron.delta[k] = -1*(label[k]-ou_layer.perceptron.output[k])*deff_sigmoid(ou_layer.perceptron.output[k]);
 		for(int j = 0; j < hi_layer[layer-1].length; j++){
 			ou_layer.perceptron.tesub[j][k] = learning_rate*hi_layer[layer-1].perceptron[j].output[k]*ou_layer.perceptron.delta[k];
@@ -110,11 +114,10 @@ int main(){
     pFile = fopen("C:/Users/Administrator/Desktop/ANN-by-c-main/ANN-by-c-main/iris(150).csv", "r" );
     if( pFile != NULL )
     {   
-    printf("yes\n");
+    printf("csv file detected!\n");
     fgets( str_tmp, 1024, pFile );
         while( !feof( pFile ) ){
             fgets( str_tmp, 1024, pFile );          
-            printf( "%s", str_tmp );
 			//printf("%c", str_tmp[1]);  
 			char *ptr = strtok(str_tmp, ",");      // " " 공백 문자를 기준으로 문자열을 자름, 포인터 반환
 			int cnt = 0;
@@ -132,21 +135,23 @@ int main(){
 					else{
 						label[index] = 2;
 					}
-					printf("%d\n",label[index]);
+					//printf("%d\n",label[index]);
 				}
 				else{
 					double num = atof(ptr);
-				    input[index][cnt] = num;
-				    printf("%lf\n", input[index][cnt]);
+				    input[index][cnt] = num/10;
+				    //printf("%lf\n", input[index][cnt]);
 				}
 			    ptr = strtok(NULL, ",");      // 다음 문자열을 잘라서 포인터를 반환
 			    cnt++;
 			}
+			double temp = input[index][1];
+			input[index][1] = input[index][2];
+			input[index][2] = input[index][1];
 			index++; 
         }       
     }
     fclose( pFile );
-	/*
 	printf("layer : ");
 	scanf("%d", &layer);	
 	srand((unsigned)time(NULL));
@@ -168,6 +173,7 @@ int main(){
 	scanf("%d", &input_n);
 	printf("learning rate : ");
 	scanf("%lf", &learning_rate);
+	/*
 	for(int i = 0; i < input_n; i++){
 		printf("intput[%d] : ", i);
 		scanf("%d %d", &input[i][0], &input[i][1]);
@@ -180,26 +186,31 @@ int main(){
 		printf("intput[%d] : %d %d\n", i, input[i][0], input[i][1]);
 		printf("label[%d] : %d\n", i, label[i]);	
 	}
+	*/
 	int temp;
 	printf("학습횟수 :  ");
 	scanf("%d", &temp);
 	while(temp--){
 		foward_pass();
-		for(int i = 0;i < hi_layer[0].length; i++){
-			for(int j = 0; j < 2; j++){
-				//printf("output[%d][%d] : %lf\n", i, j, hi_layer[0].perceptron[i].output[j]);
-				printf("weight[%d][%d] : %lf\n", i, j, hi_layer[0].perceptron[i].weight[j]);
+		
+		
+			for(int i = 0;i < hi_layer[0].length; i++){
+				for(int j = 0; j < 2; j++){
+					printf("output[%d][%d] : %lf\n", i, j, hi_layer[0].perceptron[i].output[j]);
+					printf("weight[%d][%d] : %lf\n", i, j, hi_layer[0].perceptron[i].weight[j]);
+				}
 			}
-		}
-		for(int j = 0; j < 2; j++){
-			printf("weight[3][%d] : %lf\n",  j, ou_layer.perceptron.weight[j]);
-		}
-		for(int j = 0; j < input_n; j++){
-			printf("final[%d] : %lf\n", j, ou_layer.perceptron.output[j]);
-		}
-		printf("\n");
+			for(int j = 0; j < 2; j++){
+				printf("weight[3][%d] : %lf\n",  j, ou_layer.perceptron.weight[j]);
+			}
+			for(int j = 0; j < input_n; j++){
+				printf("final[%d] : %lf\n", j, ou_layer.perceptron.output[j]);
+			}
+			printf("\n");
+		
+		
 		back_propagation();
 	}
-	*/
+	
 }
 
