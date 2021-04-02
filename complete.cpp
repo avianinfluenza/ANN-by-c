@@ -51,112 +51,60 @@ static struct input_layer input_layer[1];
 static struct output_layer output_layer[1];
 
 void foward_pass(void){
+	
 	for(int i = 0; i < input_layer[0].n; i++){
 		for(int j = 0; j < hidden_layer[0].length; j++){
 			hidden_layer[0].perceptron[j].net[i] = 0;
 			for(int o = 0; o < input_layer[0].length; o++){
 				hidden_layer[0].perceptron[j].net[i] += input_layer[0].input[i][o]*hidden_layer[0].perceptron[j].weight[o];
 			}
-		}
-		//hnet[i][0] = input[i][0]*weight[0]+input[i][1]*weight[1];
-		//hnet[i][1] = input[i][0]*weight[2]+input[i][1]*weight[3];
-	}
-	for(int i = 0; i < input_layer[0].n; i++){
-		for(int j = 0; j < hidden_layer[0].length; j++){
 			hidden_layer[0].perceptron[j].out[i] = sigmoid(hidden_layer[0].perceptron[j].net[i]);
 		}
-		//hout[i][0] = sigmoid(hnet[i][0]);
-		//hout[i][1] = sigmoid(hnet[i][1]);
 	}
 	for(int i = 0; i < input_layer[0].n; i++){
 		for(int j = 0; j < output_layer[0].length; j++){
 			output_layer[0].perceptron[j].net[i] = 0;
-			for(int o = 0; o < hidden_layer[0].length; o++){
-				output_layer[0].perceptron[j].net[i] += hidden_layer[0].perceptron[o].out[i]*output_layer[0].perceptron[j].weight[o];
+			for(int o = 0; o < hidden_layer[layer-1].length; o++){
+				output_layer[0].perceptron[j].net[i] += hidden_layer[layer-1].perceptron[o].out[i]*output_layer[0].perceptron[j].weight[o];
 			}
-		}
-		//onet[i][0] = hout[i][0]*weight[4]+hout[i][1]*weight[5];
-		//onet[i][1] = hout[i][0]*weight[6]+hout[i][1]*weight[7];
-	}
-	for(int i = 0; i < input_layer[0].n; i++){
-		for(int j = 0; j < output_layer[0].length; j++){
 			output_layer[0].perceptron[j].out[i] = sigmoid(output_layer[0].perceptron[j].net[i]);
-			printf("oout[%d][%d] : %lf\n", i,j,output_layer[0].perceptron[j].out[i]);
 		}
-		//oout[i][0] = sigmoid(onet[i][0]);
-		//oout[i][1] = sigmoid(onet[i][1]);
 	}
-	printf("\n");
 }
 
 void back_prapagation(void){
-	//output layer
 	for(int i = 0; i < input_layer[0].n; i++){
 		for(int j = 0; j < output_layer[0].length; j++){
-			output_layer[0].perceptron[j].delta[i] = (output_layer[0].perceptron[j].out[i] - label[i][0])*(output_layer[0].perceptron[j].out[i])*(1-output_layer[0].perceptron[j].out[i]);
-			for(int o = 0; o < hidden_layer[layer-1].length; o++){
-				output_layer[0].perceptron[j].sub[i][o] = output_layer[0].perceptron[j].delta[i]*hidden_layer[layer-1].perceptron[o].out[i];
+			output_layer[0].perceptron[j].delta[i] = (output_layer[0].perceptron[j].out[i]-label[i][j])*(1-output_layer[0].perceptron[j].out[i]);
+			for(int k = 0; k < hidden_layer[layer-1].length; k++){
+				output_layer[0].perceptron[j].sub[i][k] = output_layer[0].perceptron[j].delta[i]*hidden_layer[layer-1].perceptron[k].out[i];
 			}
 		}
 	}
-	/*
-	for(int i =0; i < input_n; i++){
-			delta[i][2] = (oout[i][0]-label[i][0])*(oout[i][0])*(1-oout[i][0]));
-		}
-		for(int i = 0; i < input_n; i++){
-			sub[i][4] = delta[i][2]*hout[i][0];
-			sub[i][5] = delta[i][2]*hout[i][1];
-		}
-		for(int i =0; i < input_n; i++){
-			delta[i][3] = (oout[i][1]-label[i][1])*(oout[i][1]*(1-oout[i][1]));
-		}
-		for(int i = 0; i < input_n; i++){
-			sub[i][6] = delta[i][3]*hout[i][0];
-			sub[i][7] = delta[i][3]*hout[i][1];
-	}
-	*/
-	//first hidden layer
-	if(layer==1){
-		for(int i = 0; i < input_layer[0].n; i++){
+	for(int i = 0; i < input_layer[0].n; i++){
 			for(int j = 0; j < hidden_layer[layer-1].length; j++){
 				hidden_layer[layer-1].perceptron[j].delta[i] = 0;
-				for(int o = 0; o < output_layer[0].length; o++){
-					hidden_layer[layer-1].perceptron[j].delta[i] += output_layer[0].perceptron[o].delta[i]*output_layer[0].perceptron[o].weight[j];
+				for(int k = 0; k < output_layer[0].length; k++){
+					hidden_layer[layer-1].perceptron[j].delta[i] += output_layer[0].perceptron[k].delta[i]*output_layer[0].perceptron[k].weight[j];
 				}
 				hidden_layer[layer-1].perceptron[j].delta[i] *= hidden_layer[layer-1].perceptron[j].out[i]*(1-hidden_layer[layer-1].perceptron[j].out[i]);
-				for(int o = 0; o < input_layer[0].length; o++){
-					hidden_layer[layer-1].perceptron[j].sub[i][o] = hidden_layer[layer-1].perceptron[j].delta[i]*input_layer[0].input[i][o];
+				for(int k = 0; k < input_layer[0].length; k++){
+					hidden_layer[layer-1].perceptron[j].sub[i][k] = hidden_layer[layer-1].perceptron[j].delta[i]*input_layer[layer-1].input[i][k];
 				}
 			}
 		}
-		/*	
-		for(int i = 0; i < input_n; i++){
-			delta[i][0] = (delta[i][2]*weight[4]+delta[i][3]*weight[6])*hout[i][0]*(1-hout[i][0]);
-		}
-		for(int i = 0; i < input_n; i++){
-			sub[i][0] = delta[i][0]*input[i][0];
-			sub[i][1] = delta[i][0]*input[i][1];
-		}
-		for(int i = 0; i < input_n; i++){
-			delta[i][1] = (delta[i][2]*weight[5]+delta[i][3]*weight[7])*hout[i][1]*(1-hout[i][1]);
-		}
-		for(int i = 0; i < input_n; i++){
-			sub[i][2] = delta[i][1]*input[i][0];
-			sub[i][3] = delta[i][1]*input[i][1];
-		}
-		*/
-		for(int i = 0; i < input_layer[0].n; i++){
-			for(int j = 0; j < hidden_layer[layer-1].length; j++){
-				for(int o = 0; o < input_layer[0].length; o++){
-					hidden_layer[layer-1].perceptron[j].weight[o] -=learning_rate*hidden_layer[layer-1].perceptron[j].sub[i][o];
-				}
+		
+	for(int i = 0; i < input_layer[0].n; i++){
+		for(int j = 0; j < hidden_layer[layer-1].length; j++){
+			for(int k = 0; k < input_layer[0].length; k++){
+				hidden_layer[layer-1].perceptron[j].weight[k] -= learning_rate*hidden_layer[layer-1].perceptron[j].sub[i][k];
 			}
 		}
 	}
 	for(int i = 0; i < input_layer[0].n; i++){
 		for(int j = 0; j < output_layer[0].length; j++){
-			for(int o = 0; o < hidden_layer[layer-1].length; o++){
-				output_layer[0].perceptron[j].weight[o] -= learning_rate*output_layer[0].perceptron[j].sub[i][o];
+			for(int k = 0; k < hidden_layer[layer-1].length; k++){
+				output_layer[0].perceptron[j].weight[k] -= learning_rate*output_layer[0].perceptron[j].sub[i][k];
 			}
 		}
 	}
@@ -182,11 +130,11 @@ int main(){
     fgets( str_tmp, 1024, pFile );
         while( !feof( pFile ) ){
             fgets( str_tmp, 1024, pFile );            
-			char *ptr = strtok(str_tmp, ",");      // " " 怨듬갚 臾몄옄瑜?湲곗??쇰줈 臾몄옄?댁쓣 ?먮쫫, ?ъ씤??諛섑솚
+			char *ptr = strtok(str_tmp, ",");      // " " ?⑤벉媛??얜챷?꾤몴?疫꿸퀣???곗쨮 ?얜챷???곸뱽 ?癒?カ, ?????獄쏆꼹??
 			int cnt = 0;
 			double num = atof(ptr);
-			ptr = strtok(NULL, ",");      // ?ㅼ쓬 臾몄옄?댁쓣 ?섎씪???ъ씤?곕? 諛섑솚
-			while (ptr != NULL)          // ?먮Ⅸ 臾몄옄?댁씠 ?섏삤吏 ?딆쓣 ?뚭퉴吏 諛섎났
+			ptr = strtok(NULL, ",");      // ??쇱벉 ?얜챷???곸뱽 ??롮뵬??????怨? 獄쏆꼹??
+			while (ptr != NULL)          // ?癒?뀲 ?얜챷???곸뵠 ??륁궎筌왖 ??놁뱽 ???돱筌왖 獄쏆꼶??
 			{
 			    if(cnt == 4){
 			    	label[index][0] =0.01;
@@ -204,7 +152,7 @@ int main(){
 					double num = atof(ptr);
 				    input_layer[0].input[index][cnt] = num/10;
 				}
-			    ptr = strtok(NULL, ",");      // ?ㅼ쓬 臾몄옄?댁쓣 ?섎씪???ъ씤?곕? 諛섑솚
+			    ptr = strtok(NULL, ",");      // ??쇱벉 ?얜챷???곸뱽 ??롮뵬??????怨? 獄쏆꼹??
 			    cnt++;
 			}
 			double temp = input[index][1];
@@ -244,7 +192,7 @@ int main(){
 	}
 	
 	
-	
+	double save = 1000000;
 	printf("input_n : ");
 	scanf("%d", &input_n);
 	input_layer[0].n = input_n;
@@ -256,7 +204,16 @@ int main(){
 	printf("temp : ");
 	scanf("%d", &temp);
 	while(temp--){
-		//foward_pass();
+		foward_pass();
+		if((temp+1)%10000 == 0){
+			printf("**%d**\n", temp);
+			for(int i = 0; i < input_layer[0].n; i++){
+				printf("out[%d][1] : %lf\n", i, output_layer[0].perceptron[1].out[i]);
+			}
+			printf("cost : %lf\n", cost_function());
+		}
+		save = cost_function();
+		/*
 		for(int i = 0; i < input_layer[0].n; i++){
 			hidden_layer[0].perceptron[0].net[i] = input_layer[0].input[i][0]*hidden_layer[0].perceptron[0].weight[0]+input_layer[0].input[i][1]*hidden_layer[0].perceptron[0].weight[1];
 			hidden_layer[0].perceptron[1].net[i] = input_layer[0].input[i][0]*hidden_layer[0].perceptron[1].weight[0]+input_layer[0].input[i][1]*hidden_layer[0].perceptron[1].weight[1];
@@ -265,6 +222,9 @@ int main(){
 			hidden_layer[0].perceptron[0].out[i] = sigmoid(hidden_layer[0].perceptron[0].net[i]);
 			hidden_layer[0].perceptron[1].out[i] = sigmoid(hidden_layer[0].perceptron[1].net[i]);
 		}
+		*/
+
+		/*
 		for(int i = 0; i < input_layer[0].n; i++){
 			output_layer[0].perceptron[0].net[i] = hidden_layer[layer-1].perceptron[0].out[i]*output_layer[0].perceptron[0].weight[0]+hidden_layer[layer-1].perceptron[1].out[i]*output_layer[0].perceptron[0].weight[1];
 			output_layer[0].perceptron[1].net[i] = hidden_layer[layer-1].perceptron[0].out[i]*output_layer[0].perceptron[1].weight[0]+hidden_layer[layer-1].perceptron[1].out[i]*output_layer[0].perceptron[1].weight[1];
@@ -273,14 +233,7 @@ int main(){
 			output_layer[0].perceptron[0].out[i] = sigmoid(output_layer[0].perceptron[0].net[i]);
 			output_layer[0].perceptron[1].out[i] = sigmoid(output_layer[0].perceptron[1].net[i]);
 		}
-		if((temp+1)%1000 == 0){
-			printf("**%d**\n", temp);
-			for(int i = 0; i < input_layer[0].n; i++){
-				printf("out[%d][1] : %lf\n", i, output_layer[0].perceptron[1].out[i]);
-			}
-			printf("cost : %lf\n", cost_function());
-		}
-		
+		*/
 		//foward_pass
 		/*
 		for(int i = 0; i < input_n; i++){
@@ -302,7 +255,8 @@ int main(){
 		}
 		*/
 		
-		//back_prapagation();
+		back_prapagation();
+		/*
 		for(int i = 0; i < input_layer[0].n; i++){
 			output_layer[0].perceptron[0].delta[i] = (output_layer[0].perceptron[0].out[i]-label[i][0])*(1-output_layer[0].perceptron[0].out[i]);
 			output_layer[0].perceptron[1].delta[i] = (output_layer[0].perceptron[1].out[i]-label[i][1])*(1-output_layer[0].perceptron[1].out[i]);
@@ -313,6 +267,8 @@ int main(){
 			output_layer[0].perceptron[1].sub[i][0] = output_layer[0].perceptron[1].delta[i]*hidden_layer[layer-1].perceptron[0].out[i];
 			output_layer[0].perceptron[1].sub[i][1] = output_layer[0].perceptron[1].delta[i]*hidden_layer[layer-1].perceptron[1].out[i];
 		}
+		
+		/*
 		for(int i = 0; i < input_layer[0].n; i++){
 			hidden_layer[layer-1].perceptron[0].delta[i] = (output_layer[0].perceptron[0].delta[i]*output_layer[0].perceptron[0].weight[0]+output_layer[0].perceptron[1].delta[i]*output_layer[0].perceptron[1].weight[0])*hidden_layer[layer-1].perceptron[0].out[i]*(1-hidden_layer[layer-1].perceptron[0].out[i]);
 			hidden_layer[layer-1].perceptron[1].delta[i] = (output_layer[0].perceptron[0].delta[i]*output_layer[0].perceptron[0].weight[1]+output_layer[0].perceptron[1].delta[i]*output_layer[0].perceptron[1].weight[1])*hidden_layer[layer-1].perceptron[1].out[i]*(1-hidden_layer[layer-1].perceptron[1].out[i]);
@@ -323,6 +279,9 @@ int main(){
 			hidden_layer[layer-1].perceptron[1].sub[i][0] =  hidden_layer[layer-1].perceptron[1].delta[i]*input_layer[0].input[i][0];
 			hidden_layer[layer-1].perceptron[1].sub[i][1] =  hidden_layer[layer-1].perceptron[1].delta[i]*input_layer[0].input[i][1];
 		}
+		*/
+		
+		/*
 		for(int i = 0; i < input_layer[0].n; i++){
 			output_layer[0].perceptron[0].weight[0] -= learning_rate*output_layer[0].perceptron[0].sub[i][0];
 			output_layer[0].perceptron[0].weight[1] -= learning_rate*output_layer[0].perceptron[0].sub[i][1];
@@ -335,6 +294,8 @@ int main(){
 			hidden_layer[layer-1].perceptron[1].weight[0] -= learning_rate*hidden_layer[layer-1].perceptron[1].sub[i][0];
 			hidden_layer[layer-1].perceptron[1].weight[1] -= learning_rate*hidden_layer[layer-1].perceptron[1].sub[i][1];
 		}
+		*/
+		
 		//back propagation
 		/*
 		for(int i =0; i < input_n; i++){
