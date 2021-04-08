@@ -116,7 +116,7 @@ int main(){
 	int temp;
 	printf("학습 데이터 :");
 	scanf("%d", &temp);
-	if(temp == 1){
+	if(temp == 1){		//iris(붓꽃)데이터의 csv
 	    char str_tmp[1024];
 	    FILE *pFile = NULL;
 	    int index = 0;
@@ -127,11 +127,11 @@ int main(){
 	    fgets( str_tmp, 1024, pFile );
 	        while( !feof( pFile ) ){
 	            fgets( str_tmp, 1024, pFile );            
-				char *ptr = strtok(str_tmp, ",");      // " " 怨듬갚 臾몄옄瑜?湲곗??쇰줈 臾몄옄?댁쓣 ?먮쫫, ?ъ씤??諛섑솚
+				char *ptr = strtok(str_tmp, ",");      
 				int cnt = 0;
 				double num = atof(ptr);
-				ptr = strtok(NULL, ",");      // ?ㅼ쓬 臾몄옄?댁쓣 ?섎씪???ъ씤?곕? 諛섑솚
-				while (ptr != NULL)          // ?먮Ⅸ 臾몄옄?댁씠 ?섏삤吏 ?딆쓣 ?뚭퉴吏 諛섎났
+				ptr = strtok(NULL, ",");      
+				while (ptr != NULL)          
 				{
 				    if(cnt == 4){
 				    	label[index][0] =0.01;
@@ -196,8 +196,6 @@ int main(){
 		}
 	}
 	
-	
-	double save = 1000000;
 	printf("input_n : ");
 	scanf("%d", &input_n);
 	input_layer[0].n = input_n;
