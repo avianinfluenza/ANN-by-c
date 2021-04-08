@@ -116,7 +116,7 @@ int main(){
 	int temp;
 	printf("학습 데이터 :");
 	scanf("%d", &temp);
-	if(temp == 1){		//iris(붓꽃)데이터의 csv
+	if(temp == 1){		//iris(붓꽃)데이터의 csv파일을 불러와 input_layer에 넣음
 	    char str_tmp[1024];
 	    FILE *pFile = NULL;
 	    int index = 0;
@@ -149,7 +149,7 @@ int main(){
 						double num = atof(ptr);
 					    input_layer[0].input[index][cnt] = num/10;
 					}
-				    ptr = strtok(NULL, ",");      // ?ㅼ쓬 臾몄옄?댁쓣 ?섎씪???ъ씤?곕? 諛섑솚
+				    ptr = strtok(NULL, ",");      
 				    cnt++;
 				}
 				double temp = input_layer[0].input[index][1];
@@ -160,7 +160,7 @@ int main(){
 	    }
 	    fclose( pFile );
 	}
-	else{
+	else{		//xor문제의 데이터를 input_layer에 넣음
 		input_layer[0].input[0][0] = 0.99;
 		input_layer[0].input[0][1] = 0.01;
 		input_layer[0].input[1][0] = 0.01;
