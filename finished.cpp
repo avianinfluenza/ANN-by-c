@@ -8,7 +8,7 @@
 
 double learning_rate = 0.1;
 double label[200][2] = {{0.01, 0.99}, {0.01, 0.99}, {0.01, 0.01}, {0.01, 0.01}};	//출력 데이터의 target값(정답)
-int input_n = 150, layer = 1;
+int input_n = 150, layer = 1, s = 1;
 
 struct perceptron{
 	double sub[200][4];
@@ -39,65 +39,146 @@ double sigmoid(double input){	//활성화함수 시그모이드
 	return 1/(1+pow(E, -1*input));
 }
 
+double ReLU(double input){	//활성화함수 ReLU
+	if(input >= 0){
+		return input;
+	} 
+	else{
+		return 0;
+	}
+}
+
+double deff_ReLU(double input){	//활성화함수 ReLU 미분 
+	if(input >= 0){
+		return 1;
+	} 
+	else{
+		return 0;
+	}
+}
+
+
+
 static struct hidden_layer hidden_layer[1];
 static struct input_layer input_layer[1];
 static struct output_layer output_layer[1];
 
 void foward_pass(void){		//입력값을 통해 출력값 
-	
-	for(int i = 0; i < input_layer[0].n; i++){
-		for(int j = 0; j < hidden_layer[0].length; j++){
-			hidden_layer[0].perceptron[j].net[i] = 0;
-			for(int o = 0; o < input_layer[0].length; o++){
-				hidden_layer[0].perceptron[j].net[i] += input_layer[0].input[i][o]*hidden_layer[0].perceptron[j].weight[o];
+	if(s == 1){
+		for(int i = 0; i < input_layer[0].n; i++){
+			for(int j = 0; j < hidden_layer[0].length; j++){
+				hidden_layer[0].perceptron[j].net[i] = 0;
+				for(int o = 0; o < input_layer[0].length; o++){
+					hidden_layer[0].perceptron[j].net[i] += input_layer[0].input[i][o]*hidden_layer[0].perceptron[j].weight[o];
+				}
+				hidden_layer[0].perceptron[j].out[i] = sigmoid(hidden_layer[0].perceptron[j].net[i]);
 			}
-			hidden_layer[0].perceptron[j].out[i] = sigmoid(hidden_layer[0].perceptron[j].net[i]);
+		}
+		for(int i = 0; i < input_layer[0].n; i++){
+			for(int j = 0; j < output_layer[0].length; j++){
+				output_layer[0].perceptron[j].net[i] = 0;
+				for(int o = 0; o < hidden_layer[layer-1].length; o++){
+					output_layer[0].perceptron[j].net[i] += hidden_layer[layer-1].perceptron[o].out[i]*output_layer[0].perceptron[j].weight[o];
+				}
+				output_layer[0].perceptron[j].out[i] = sigmoid(output_layer[0].perceptron[j].net[i]);
+			}
 		}
 	}
-	for(int i = 0; i < input_layer[0].n; i++){
-		for(int j = 0; j < output_layer[0].length; j++){
-			output_layer[0].perceptron[j].net[i] = 0;
-			for(int o = 0; o < hidden_layer[layer-1].length; o++){
-				output_layer[0].perceptron[j].net[i] += hidden_layer[layer-1].perceptron[o].out[i]*output_layer[0].perceptron[j].weight[o];
+	else if(s == 2){
+		for(int i = 0; i < input_layer[0].n; i++){
+			for(int j = 0; j < hidden_layer[0].length; j++){
+				hidden_layer[0].perceptron[j].net[i] = 0;
+				for(int o = 0; o < input_layer[0].length; o++){
+					hidden_layer[0].perceptron[j].net[i] += input_layer[0].input[i][o]*hidden_layer[0].perceptron[j].weight[o];
+				}
+				hidden_layer[0].perceptron[j].out[i] = ReLU(hidden_layer[0].perceptron[j].net[i]);
 			}
-			output_layer[0].perceptron[j].out[i] = sigmoid(output_layer[0].perceptron[j].net[i]);
+		}
+		for(int i = 0; i < input_layer[0].n; i++){
+			for(int j = 0; j < output_layer[0].length; j++){
+				output_layer[0].perceptron[j].net[i] = 0;
+				for(int o = 0; o < hidden_layer[layer-1].length; o++){
+					output_layer[0].perceptron[j].net[i] += hidden_layer[layer-1].perceptron[o].out[i]*output_layer[0].perceptron[j].weight[o];
+				}
+				output_layer[0].perceptron[j].out[i] = ReLU(output_layer[0].perceptron[j].net[i]);
+			}
 		}
 	}
+
 }
 
 void back_prapagation(void){	//오차역전파 : 출력값과 target값을 비교하여서 perceptron들의 weight를 조정
-	for(int i = 0; i < input_layer[0].n; i++){
-		for(int j = 0; j < output_layer[0].length; j++){
-			output_layer[0].perceptron[j].delta[i] = (output_layer[0].perceptron[j].out[i]-label[i][j])*(1-output_layer[0].perceptron[j].out[i]);
-			for(int k = 0; k < hidden_layer[layer-1].length; k++){
-				output_layer[0].perceptron[j].sub[i][k] = output_layer[0].perceptron[j].delta[i]*hidden_layer[layer-1].perceptron[k].out[i];
+	if(s == 1){
+		for(int i = 0; i < input_layer[0].n; i++){
+			for(int j = 0; j < output_layer[0].length; j++){
+				output_layer[0].perceptron[j].delta[i] = (output_layer[0].perceptron[j].out[i]-label[i][j])*(1-output_layer[0].perceptron[j].out[i])*output_layer[0].perceptron[j].out[i];
+				for(int k = 0; k < hidden_layer[layer-1].length; k++){
+					output_layer[0].perceptron[j].sub[i][k] = output_layer[0].perceptron[j].delta[i]*hidden_layer[layer-1].perceptron[k].out[i];
+				}
 			}
 		}
-	}
-	for(int i = 0; i < input_layer[0].n; i++){
+		for(int i = 0; i < input_layer[0].n; i++){
+				for(int j = 0; j < hidden_layer[layer-1].length; j++){
+					hidden_layer[layer-1].perceptron[j].delta[i] = 0;
+					for(int k = 0; k < output_layer[0].length; k++){
+						hidden_layer[layer-1].perceptron[j].delta[i] += output_layer[0].perceptron[k].delta[i]*output_layer[0].perceptron[k].weight[j];
+					}
+					hidden_layer[layer-1].perceptron[j].delta[i] *= hidden_layer[layer-1].perceptron[j].out[i]*(1-hidden_layer[layer-1].perceptron[j].out[i]);
+					for(int k = 0; k < input_layer[0].length; k++){
+						hidden_layer[layer-1].perceptron[j].sub[i][k] = hidden_layer[layer-1].perceptron[j].delta[i]*input_layer[layer-1].input[i][k];
+					}
+				}
+			}
+			
+		for(int i = 0; i < input_layer[0].n; i++){
 			for(int j = 0; j < hidden_layer[layer-1].length; j++){
-				hidden_layer[layer-1].perceptron[j].delta[i] = 0;
-				for(int k = 0; k < output_layer[0].length; k++){
-					hidden_layer[layer-1].perceptron[j].delta[i] += output_layer[0].perceptron[k].delta[i]*output_layer[0].perceptron[k].weight[j];
-				}
-				hidden_layer[layer-1].perceptron[j].delta[i] *= hidden_layer[layer-1].perceptron[j].out[i]*(1-hidden_layer[layer-1].perceptron[j].out[i]);
 				for(int k = 0; k < input_layer[0].length; k++){
-					hidden_layer[layer-1].perceptron[j].sub[i][k] = hidden_layer[layer-1].perceptron[j].delta[i]*input_layer[layer-1].input[i][k];
+					hidden_layer[layer-1].perceptron[j].weight[k] -= learning_rate*hidden_layer[layer-1].perceptron[j].sub[i][k];
 				}
 			}
 		}
-		
-	for(int i = 0; i < input_layer[0].n; i++){
-		for(int j = 0; j < hidden_layer[layer-1].length; j++){
-			for(int k = 0; k < input_layer[0].length; k++){
-				hidden_layer[layer-1].perceptron[j].weight[k] -= learning_rate*hidden_layer[layer-1].perceptron[j].sub[i][k];
+		for(int i = 0; i < input_layer[0].n; i++){
+			for(int j = 0; j < output_layer[0].length; j++){
+				for(int k = 0; k < hidden_layer[layer-1].length; k++){
+					output_layer[0].perceptron[j].weight[k] -= learning_rate*output_layer[0].perceptron[j].sub[i][k];
+				}
 			}
 		}
 	}
-	for(int i = 0; i < input_layer[0].n; i++){
-		for(int j = 0; j < output_layer[0].length; j++){
-			for(int k = 0; k < hidden_layer[layer-1].length; k++){
-				output_layer[0].perceptron[j].weight[k] -= learning_rate*output_layer[0].perceptron[j].sub[i][k];
+	else if(s == 2){
+		for(int i = 0; i < input_layer[0].n; i++){
+			for(int j = 0; j < output_layer[0].length; j++){
+				output_layer[0].perceptron[j].delta[i] = (output_layer[0].perceptron[j].out[i]-label[i][j])*deff_ReLU(output_layer[0].perceptron[j].out[i]);
+				for(int k = 0; k < hidden_layer[layer-1].length; k++){
+					output_layer[0].perceptron[j].sub[i][k] = output_layer[0].perceptron[j].delta[i]*hidden_layer[layer-1].perceptron[k].out[i];
+				}
+			}
+		}
+		for(int i = 0; i < input_layer[0].n; i++){
+				for(int j = 0; j < hidden_layer[layer-1].length; j++){
+					hidden_layer[layer-1].perceptron[j].delta[i] = 0;
+					for(int k = 0; k < output_layer[0].length; k++){
+						hidden_layer[layer-1].perceptron[j].delta[i] += output_layer[0].perceptron[k].delta[i]*output_layer[0].perceptron[k].weight[j];
+					}
+					hidden_layer[layer-1].perceptron[j].delta[i] *= deff_ReLU(hidden_layer[layer-1].perceptron[j].out[i]);
+					for(int k = 0; k < input_layer[0].length; k++){
+						hidden_layer[layer-1].perceptron[j].sub[i][k] = hidden_layer[layer-1].perceptron[j].delta[i]*input_layer[layer-1].input[i][k];
+					}
+				}
+			}
+			
+		for(int i = 0; i < input_layer[0].n; i++){
+			for(int j = 0; j < hidden_layer[layer-1].length; j++){
+				for(int k = 0; k < input_layer[0].length; k++){
+					hidden_layer[layer-1].perceptron[j].weight[k] -= learning_rate*hidden_layer[layer-1].perceptron[j].sub[i][k];
+				}
+			}
+		}
+		for(int i = 0; i < input_layer[0].n; i++){
+			for(int j = 0; j < output_layer[0].length; j++){
+				for(int k = 0; k < hidden_layer[layer-1].length; k++){
+					output_layer[0].perceptron[j].weight[k] -= learning_rate*output_layer[0].perceptron[j].sub[i][k];
+				}
 			}
 		}
 	}
@@ -114,13 +195,13 @@ double cost_function(void){	//출력값과 타겟값(label)의 오차를 비교,
 
 int main(){
 	int temp;
-	printf("학습 데이터 :");
+	printf("학습 데이터(1은 iris데이터, 2는 xor데이터) :");
 	scanf("%d", &temp);
 	if(temp == 1){		//iris(붓꽃)데이터의 csv파일을 불러와 input_layer에 넣음
 	    char str_tmp[1024];
 	    FILE *pFile = NULL;
 	    int index = 0;
-	    pFile = fopen("D:/ANN-by-c-main/ANN-by-c-main/iri", "r" );
+	    pFile = fopen("D:/ANN-by-c-main/ANN-by-c-main/iris(150).csv", "r" );
 	    if( pFile != NULL )
 	    {   
 	    printf("csv file detected!\n");
@@ -170,29 +251,54 @@ int main(){
 		input_layer[0].input[3][0] = 0.01;
 		input_layer[0].input[3][1] = 0.01;
 	}
-	
-	
+	printf("활성화 함수 종류(1은 sigmoid, 2는 ReLU) :");
+	scanf("%d", &s);
+	printf("weight종류(1은 random weight, 2는 1.0) :");
+	scanf("%d", &temp); 
 	//random weight
-	
-	srand((unsigned)time(NULL));
-	//first hidden layer
-	for(int i = 0; i < hidden_layer[0].length; i++){
-		for(int j = 0 ; j < input_layer[0].length; j++){
-			hidden_layer[0].perceptron[i].weight[j] = ((rand()*rand())%1000000)*0.000001;	
+	if(temp == 1){
+		srand((unsigned)time(NULL));
+		//first hidden layer
+		for(int i = 0; i < hidden_layer[0].length; i++){
+			for(int j = 0 ; j < input_layer[0].length; j++){
+				hidden_layer[0].perceptron[i].weight[j] = ((rand()*rand())%1000000)*0.000001;	
+			}
 		}
-	}
-	//leftover hidden layer
-	for(int k = 1; k < layer; k++){
-		for(int i = 0; i < hidden_layer[k].length; i++){
-			for(int j = 0 ; j < hidden_layer[k-1].length; j++){
-				hidden_layer[k].perceptron[i].weight[j] = ((rand()*rand())%1000000)*0.000001;	
+		//leftover hidden layer
+		for(int k = 1; k < layer; k++){
+			for(int i = 0; i < hidden_layer[k].length; i++){
+				for(int j = 0 ; j < hidden_layer[k-1].length; j++){
+					hidden_layer[k].perceptron[i].weight[j] = ((rand()*rand())%1000000)*0.000001;	
+				}
+			}
+		}
+		//output layer
+		for(int i = 0; i < output_layer[0].length; i++){
+			for(int j = 0 ; j < hidden_layer[layer-1].length; j++){
+				output_layer[0].perceptron[i].weight[j] = ((rand()*rand())%1000000)*0.000001;
 			}
 		}
 	}
-	//output layer
-	for(int i = 0; i < output_layer[0].length; i++){
-		for(int j = 0 ; j < hidden_layer[layer-1].length; j++){
-			output_layer[0].perceptron[i].weight[j] = ((rand()*rand())%1000000)*0.000001;
+	else{
+		//first hidden layer
+		for(int i = 0; i < hidden_layer[0].length; i++){
+			for(int j = 0 ; j < input_layer[0].length; j++){
+				hidden_layer[0].perceptron[i].weight[j] = 1.0;	
+			}
+		}
+		//leftover hidden layer
+		for(int k = 1; k < layer; k++){
+			for(int i = 0; i < hidden_layer[k].length; i++){
+				for(int j = 0 ; j < hidden_layer[k-1].length; j++){
+					hidden_layer[k].perceptron[i].weight[j] = 1.0;	
+				}
+			}
+		}
+		//output layer
+		for(int i = 0; i < output_layer[0].length; i++){
+			for(int j = 0 ; j < hidden_layer[layer-1].length; j++){
+				output_layer[0].perceptron[i].weight[j] = 1.0;
+			}
 		}
 	}
 	
@@ -211,11 +317,16 @@ int main(){
 		if(temp%1000 == 1){
 			printf("**%d번째 학습**\n", temp);
 			for(int i = 0; i < input_layer[0].n; i++){
-				printf("out[%d][1] : %lf\n", i, output_layer[0].perceptron[1].out[i]);
+				//printf("out[%d][1] : %lf\n", i, output_layer[0].perceptron[1].out[i]);
 			}
+			/*
+			printf("weight[0][0] : %lf\n", hidden_layer[0].perceptron[0].weight[0]);
+			printf("weight[0][1] : %lf\n", hidden_layer[0].perceptron[0].weight[1]);
+			printf("weight[1][0] : %lf\n", hidden_layer[0].perceptron[1].weight[0]);
+			printf("weight[1][1] : %lf\n", hidden_layer[0].perceptron[1].weight[1]);
+			*/
 			printf("cost : %lf\n", cost_function());
 		}
-		save = cost_function();
 		back_prapagation();
 	}
 }
