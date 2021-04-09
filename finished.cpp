@@ -8,7 +8,8 @@
 
 double learning_rate = 0.1;
 double label[200][2] = {{0.01, 0.99}, {0.01, 0.99}, {0.01, 0.01}, {0.01, 0.01}};	//출력 데이터의 target값(정답)
-int input_n = 150, layer = 1, s = 1;
+int input_n, layer = 1, s = 1, train, test;
+double testdata[200][10], testlabel[200][2];
 
 struct perceptron{
 	double sub[200][4];
@@ -56,7 +57,6 @@ double deff_ReLU(double input){	//활성화함수 ReLU 미분
 		return 0;
 	}
 }
-
 
 
 static struct hidden_layer hidden_layer[1];
@@ -183,6 +183,59 @@ void back_prapagation(void){	//오차역전파 : 출력값과 target값을 비�
 		}
 	}
 }
+void tt(void){
+	if(input_n == 100){
+		for(int k = 0; k < 2; k++){
+			for(int i = train; i < 50; i++){
+				testdata[i-train+k*test][4] = input_layer[0].input[i+50*k][4];
+				testdata[i-train+k*test][3] = input_layer[0].input[i+50*k][3];
+				testdata[i-train+k*test][2] = input_layer[0].input[i+50*k][2];
+				testdata[i-train+k*test][1] = input_layer[0].input[i+50*k][1];
+				testdata[i-train+k*test][0] = input_layer[0].input[i+50*k][0];
+			}			
+		}
+		for(int i = train; i < 2*train; i++){
+			input_layer[0].input[i][0] = input_layer[0].input[i+test][0];
+			input_layer[0].input[i][1] = input_layer[0].input[i+test][1];
+			input_layer[0].input[i][2] = input_layer[0].input[i+test][2];
+			input_layer[0].input[i][3] = input_layer[0].input[i+test][3];
+			input_layer[0].input[i][4] = input_layer[0].input[i+test][4];
+			label[i][0] = label[i+test][0];
+			label[i][0] = label[i+test][0];
+		}
+		input_layer[0].n = train*2;
+	}
+	else if(input_n == 150){
+		for(int k = 0; k < 3; k++){
+			for(int i = train; i < 50; i++){
+				testdata[i-train+k*test][4] = input_layer[0].input[i+50*k][4];
+				testdata[i-train+k*test][3] = input_layer[0].input[i+50*k][3];
+				testdata[i-train+k*test][2] = input_layer[0].input[i+50*k][2];
+				testdata[i-train+k*test][1] = input_layer[0].input[i+50*k][1];
+				testdata[i-train+k*test][0] = input_layer[0].input[i+50*k][0];
+			}			
+		}
+		for(int i = train; i < 2*train; i++){
+			input_layer[0].input[i][0] = input_layer[0].input[i+test][0];
+			input_layer[0].input[i][1] = input_layer[0].input[i+test][1];
+			input_layer[0].input[i][2] = input_layer[0].input[i+test][2];
+			input_layer[0].input[i][3] = input_layer[0].input[i+test][3];
+			input_layer[0].input[i][4] = input_layer[0].input[i+test][4];
+			label[i][0] = label[i+test][0];
+			label[i][0] = label[i+test][0];
+		}
+		for(int i = 2*train; i < 3*train; i++){
+			input_layer[0].input[i][0] = input_layer[0].input[100+i-2*train][0];
+			input_layer[0].input[i][1] = input_layer[0].input[100+i-2*train][1];
+			input_layer[0].input[i][2] = input_layer[0].input[100+i-2*train][2];
+			input_layer[0].input[i][3] = input_layer[0].input[100+i-2*train][3];
+			input_layer[0].input[i][4] = input_layer[0].input[100+i-2*train][4];
+			label[i][0] = label[100+i-2*train][0];
+			label[i][0] = label[100+i-2*train][0];
+		}
+		input_layer[0].n = train*3;
+	}
+}
 
 double cost_function(void){	//출력값과 타겟값(label)의 오차를 비교, 나중에 모델의 학습정도를 평가하는 기준으로 사용함
 	double temp = 0;
@@ -302,8 +355,13 @@ int main(){
 		}
 	}
 	
-	printf("input_n : ");
+	printf("input_n :");
 	scanf("%d", &input_n);
+	printf("train :");
+	scanf("%d", &train);
+	printf("test :");
+	scanf("%d", &test);
+	tt();
 	input_layer[0].n = input_n;
 	for(int i = 0; i < input_n; i++){
 		printf("%lf %lf\n", input_layer[0].input[i][0], input_layer[0].input[i][1]);
